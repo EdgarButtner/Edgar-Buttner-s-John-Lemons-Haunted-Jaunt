@@ -12,11 +12,26 @@ public class PlayerMovement : MonoBehaviour
     Vector3 m_Movement;
     Quaternion m_Rotation = Quaternion.identity;
 
+    public float sprintMultiplier = 1.5f;
+    public float sprintDuration = 3f;
+    public float sprintCooldown = 10f;
+
+    float m_CurrentMultiplier = 1f;
+    bool m_CanSprint = true;
+
     void Start ()
     {
         m_Animator = GetComponent<Animator> ();
         m_Rigidbody = GetComponent<Rigidbody> ();
         m_AudioSource = GetComponent<AudioSource> ();
+    }
+
+    void Update ()
+    {
+        if (Input.GetKeyDown(KeyCode.Space) && m_CanSprint)
+        {
+            StartCoroutine(SprintCoroutine());
+        }
     }
 
     void FixedUpdate ()
@@ -35,9 +50,7 @@ public class PlayerMovement : MonoBehaviour
         if (isWalking)
         {
             if (!m_AudioSource.isPlaying)
-            {
                 m_AudioSource.Play();
-            }
         }
         else
         {
@@ -50,7 +63,17 @@ public class PlayerMovement : MonoBehaviour
 
     void OnAnimatorMove ()
     {
-        m_Rigidbody.MovePosition (m_Rigidbody.position + m_Movement * m_Animator.deltaPosition.magnitude);
+        m_Rigidbody.MovePosition (m_Rigidbody.position + m_Movement * m_Animator.deltaPosition.magnitude * m_CurrentMultiplier);
         m_Rigidbody.MoveRotation (m_Rotation);
+    }
+
+    IEnumerator SprintCoroutine()
+    {
+        m_CanSprint = false;
+        m_CurrentMultiplier = sprintMultiplier;
+        yield return new WaitForSeconds(sprintDuration);
+        m_CurrentMultiplier = 1f;
+        yield return new WaitForSeconds(sprintCooldown);
+        m_CanSprint = true;
     }
 }
