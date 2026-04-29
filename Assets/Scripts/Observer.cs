@@ -6,9 +6,15 @@ public class Observer : MonoBehaviour
 {
     public Transform player;
     public GameEnding gameEnding;
-
+    PlayerController m_PlayerController;
     bool m_IsPlayerInRange;
+    bool m_IsPlayerVisble;
 
+    void Start()
+    {
+        GameObject playerObject = GameObject.FindGameObjectWithTag("Player");
+        if (playerObject) m_PlayerController = playerObject.GetComponent<PlayerController>();
+    }
     void OnTriggerEnter (Collider other)
     {
         if (other.transform == player)
@@ -27,7 +33,7 @@ public class Observer : MonoBehaviour
 
     void Update ()
     {
-        if (m_IsPlayerInRange)
+        if (m_IsPlayerInRange && m_PlayerController.isVisible)
         {
             Vector3 direction = player.position - transform.position + Vector3.up;
             Ray ray = new Ray(transform.position, direction);
